@@ -1,0 +1,30 @@
+# Ignore virtual environment
+venv/
+env/
+.venv/
+
+# Ignore Manim cache and media files
+media/
+videos/
+images/
+**/__pycache__/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Manim temporary files
+*.partial.manim
+*.mp4
+*.png
+*.json
+
+# IDE / Editor files
+.vscode/
+.idea/
+
+# OS generated files
+Thumbs.db
+.DS_Store
