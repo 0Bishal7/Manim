@@ -1,6 +1,7 @@
 from manim import *
 import numpy as np
 
+
 class EHFAnimation(Scene):
     def construct(self):
         # Title
@@ -18,37 +19,312 @@ class EHFAnimation(Scene):
         self.play(eq.animate.shift(UP*1.0), run_time=0.8)
 
         # Typewriter-style explanation lines
-        typewriter_font = "Courier New"  # or another monospaced font installed on your system
+        #typewriter_font = "Courier New"  # or another monospaced font installed on your system
 
-        lines = [
-            "Energy & Frequency: The formula",
-            "E = h/nu shows a direct relationship:",
-            "double the frequency, double the energy.",
-            "Planck's Law explains the particle nature of light"
-        ]
+        #lines = [
+        #    "Energy & Frequency: The formula",
+        #    "E = h/nu shows a direct relationship:",
+        #    "double the frequency, double the energy.",
+        #    "Planck's Law explains the particle nature of light"
+        #]
 
-        text_mobjects = VGroup(
-            *[
-                Text(
-                    line,
-                    font=typewriter_font,
-                    font_size=20
-                )
-                for line in lines
-            ]
-        ).arrange(DOWN, aligned_edge= ORIGIN, buff=0.12)
+        #text_mobjects = VGroup(
+        #    *[
+        #        Text(
+        #            line,
+        #            font=typewriter_font,
+        #            font_size=20
+        #        )
+        #        for line in lines
+        #    ]
+        #).arrange(DOWN, aligned_edge= ORIGIN, buff=0.12)
 
-        text_mobjects.next_to(eq, DOWN, buff=0.6)
+        #text_mobjects.next_to(eq, DOWN, buff=0.6)
 
         # Typewriter-style: write one line after another
-        for line_text in text_mobjects:
-            self.play(Write(line_text), run_time=1.0)
-            self.wait(0.2)
+        #for line_text in text_mobjects:
+        #    self.play(Write(line_text), run_time=1.0)
+        #    self.wait(0.2)
 
-        self.wait(2)
-        self.play(FadeOut(text_mobjects))
+        #self.wait(2)
+        #self.play(FadeOut(text_mobjects))
 
               # Photoelectric effect sketch (photon hits top surface, electron ejects)
+
+
+        # ---------------- Light as particles vs waves ----------------
+
+
+# Two lamps on left and right
+
+# Left lamp
+        lamp_left = RoundedRectangle(
+            corner_radius=0.2,
+            width=0.8,
+            height=1.2,
+            color=PINK,
+            fill_opacity=1,
+        )
+        lamp_left.to_edge(UP).shift(LEFT*3)
+
+        lamp_left_head = Circle(
+            radius=0.35,
+            color=YELLOW,
+            fill_opacity=1,
+        ).next_to(lamp_left, DOWN, buff=-0.1)
+
+        # Right lamp (copy and shift to the other side)
+        lamp_right = lamp_left.copy().shift(RIGHT*6)
+        lamp_right_head = lamp_left_head.copy().shift(RIGHT*6)
+
+        # Optional labels
+        label_left = Text("LIGHT SOURCE", font_size=19).next_to(lamp_left, RIGHT, buff=0.2)
+        label_right = label_left.copy().shift(RIGHT*6)
+
+        # Show both lamps
+        self.play(
+            FadeIn(lamp_left), FadeIn(lamp_left_head),
+            FadeIn(lamp_right), FadeIn(lamp_right_head),
+            Write(label_left), Write(label_right),
+            run_time=1
+        )
+
+
+        # Frustum-shaped light beams from both lamps
+# Left beam (frustum)
+        left_top = lamp_left_head.get_center() + DOWN*0.1
+        left_bottom_y = left_top[1] - 4  # beam length
+
+        top_left_left  = left_top + LEFT*0.4
+        top_right_left = left_top + RIGHT*0.4
+        bottom_left_left  = left_top + LEFT*1.5 + (left_bottom_y - left_top[1]) * UP * 0 + DOWN*4
+        bottom_right_left = left_top + RIGHT*1.5 + (left_bottom_y - left_top[1]) * UP * 0 + DOWN*4
+
+        beam_left = Polygon(
+            top_left_left,
+            top_right_left,
+            bottom_right_left,
+            bottom_left_left,
+            color=YELLOW,
+            fill_opacity=0.15,
+            stroke_width=0,
+        )
+
+        # Right beam (mirror of left)
+        right_top = lamp_right_head.get_center() + DOWN*0.1
+        right_bottom_y = right_top[1] - 4
+
+        top_left_right  = right_top + LEFT*0.4
+        top_right_right = right_top + RIGHT*0.4
+        bottom_left_right  = right_top + LEFT*1.5 + DOWN*4
+        bottom_right_right = right_top + RIGHT*1.5 + DOWN*4
+
+        beam_right = Polygon(
+            top_left_right,
+            top_right_right,
+            bottom_right_right,
+            bottom_left_right,
+            color=YELLOW,
+            fill_opacity=0.15,
+            stroke_width=0,
+        )
+
+        self.play(FadeIn(beam_left), FadeIn(beam_right), run_time=1)
+
+
+        # Dimensions for barriers: cover right half of each frustum
+        barrier_height = 1.3   # adjust to taste
+        barrier_width_factor = 0.5  # half of beam width
+
+        # LEFT barrier (on right half of left frustum)
+        left_beam_bottom = beam_left.get_vertices()[2:]  # bottom edge approx
+        left_bottom_y = min(v[1] for v in left_beam_bottom)
+        left_top_y = beam_left.get_top()[1]
+
+        left_center_x = (beam_left.get_right()[0] + beam_left.get_center()[0]) / 2
+        left_barrier = Rectangle(
+            width=(beam_left.get_right()[0] - beam_left.get_center()[0]) * 2 * barrier_width_factor,
+            height=barrier_height,
+            color=GREEN,
+            fill_opacity=0.9,
+        ).move_to([
+            left_center_x,
+            left_top_y - barrier_height/2 - 3,   # sits inside upper half of frustum
+            0
+        ])
+
+        left_barrier_label = Text("BARRIER", font_size=24, color=WHITE).move_to(left_barrier.get_center())
+
+                # Show lamps and beams
+        #self.play(
+        #    FadeIn(lamp_left), FadeIn(lamp_left_head),
+        #    FadeIn(lamp_right), FadeIn(lamp_right_head),
+        #    FadeIn(beam_left), FadeIn(beam_right),
+        #    run_time=1
+        #)
+
+        # RIGHT barrier (mirror on right frustum)
+        right_beam_bottom = beam_right.get_vertices()[2:]
+        right_bottom_y = min(v[1] for v in right_beam_bottom)
+        right_top_y = beam_right.get_top()[1]
+
+        right_center_x = (beam_right.get_right()[0] + beam_right.get_center()[0]) / 2
+        right_barrier = Rectangle(
+            width=(beam_right.get_right()[0] - beam_right.get_center()[0]) * 2 * barrier_width_factor,
+            height=barrier_height,
+            color=GREEN,
+            fill_opacity=0.9,
+        ).move_to([
+            right_center_x,
+            right_top_y - barrier_height/2 - 3,
+            0
+        ])
+
+        right_barrier_label = Text("BARRIER", font_size=24, color=WHITE).move_to(right_barrier.get_center())
+
+        # Show barriers on top of beams
+        self.play(
+            FadeIn(left_barrier), FadeIn(right_barrier),
+            Write(left_barrier_label), Write(right_barrier_label),
+            run_time=1
+        )
+
+        # Show barriers BEFORE particles
+        #self.play(
+        #    FadeIn(left_barrier), FadeIn(right_barrier),
+        #    Write(left_barrier_label), Write(right_barrier_label),
+        #    run_time=1
+        #)
+        self.wait(0.5)  # small pause so students can see the barriers
+
+               # ---------- PARTICLE FLOW FROM LEFT LAMP: diverging from mouth ----------
+
+        particle_dots = VGroup()
+        animations = []
+
+        # Geometry
+        beam_verts = beam_left.get_vertices()  # [top-left, top-right, bottom-right, bottom-left]
+        top_left, top_right, bottom_right, bottom_left = beam_verts
+
+        lamp_mouth = lamp_left_head.get_center()
+
+        # y of the frustum base
+        base_y = min(bottom_left[1], bottom_right[1])
+
+        barrier_top_y   = left_barrier.get_top()[1]
+        barrier_left_x  = left_barrier.get_left()[0]
+        barrier_right_x = left_barrier.get_right()[0]
+
+        # pick several TARGET points along the base of the frustum
+        x_targets = np.linspace(bottom_left[0] + 0.05, bottom_right[0] - 0.05, 9)
+
+        for x in x_targets:
+            # full path from lamp mouth to base point (diverging)
+            full_end = np.array([x, base_y, 0.0])
+
+            # if this ray passes under the barrier, cut it at barrier top
+            if barrier_left_x <= x <= barrier_right_x:
+                cut_y = barrier_top_y
+                ray_dir = full_end - lamp_mouth
+                if ray_dir[1] != 0:
+                    t_cut = (cut_y - lamp_mouth[1]) / ray_dir[1]
+                    t_cut = max(0.0, min(1.0, t_cut))
+                    end_pos = lamp_mouth + t_cut * ray_dir
+                else:
+                    end_pos = full_end
+            else:
+                end_pos = full_end
+
+            start_pos = lamp_mouth
+
+            # create several dots along that ray, all starting at the mouth
+            n_dots = 6
+            for t in np.linspace(0.1, 1.0, n_dots):
+                dot_start = start_pos
+                dot_end   = start_pos + t * (end_pos - start_pos)
+
+                dot = Dot(dot_start, radius=0.05, color=YELLOW)
+                particle_dots.add(dot)
+                animations.append(dot.animate.move_to(dot_end))
+
+        self.add(particle_dots)
+        self.play(LaggedStart(*animations, lag_ratio=0.03, run_time=2))
+
+        # ------------ WAVEFRONTS FROM RIGHT LAMP ------------
+
+        wave_group = VGroup()
+
+        source = lamp_right_head.get_center()
+
+        # Frustum geometry
+        v0, v1, v2, v3 = beam_right.get_vertices()
+        frustum_left_x  = min(v0[0], v3[0])
+        frustum_right_x = max(v1[0], v2[0])
+        base_y          = min(v2[1], v3[1])
+
+        # Barrier geometry
+        b_left_x  = right_barrier.get_left()[0]
+        b_right_x = right_barrier.get_right()[0]
+        b_top_y   = right_barrier.get_top()[1]
+        b_bottom_y = right_barrier.get_bottom()[1]
+
+        # Parameters controlling look
+        n_waves      = 10          # how many semicircular fronts
+        max_radius   = abs(base_y - source[1]) * 1.2
+        wave_spacing = max_radius / n_waves
+
+        for k in range(1, n_waves + 1):
+            R = k * wave_spacing
+
+            # sample a semicircle centred at source, opening downward
+            theta_vals = np.linspace(-0.65*np.pi, -0.35*np.pi, 120)  # tweak to match frustum angle
+            pts = []
+            for theta in theta_vals:
+                x = source[0] + R * np.cos(theta)
+                y = source[1] + R * np.sin(theta)
+                p = np.array([x, y, 0])
+
+                # clip to frustum
+                if x < frustum_left_x or x > frustum_right_x or y < base_y:
+                    continue
+
+                # cut out the barrier region (waves stop there, do NOT go around)
+                if b_left_x <= x <= b_right_x and b_bottom_y <= y <= b_top_y:
+                    continue
+
+                pts.append(p)
+
+            if len(pts) < 2:
+                continue
+
+            wave = VMobject(stroke_color=YELLOW_C, stroke_width=6, stroke_opacity=0.9)
+            wave.set_points_as_corners(pts)
+            wave_group.add(wave)
+
+        # animate wavefronts appearing one after another from lamp
+        for i, wave in enumerate(wave_group):
+            wave.set_opacity(0)
+            self.add(wave)
+            self.play(wave.animate.set_opacity(1), run_time=0.15)
+        self.wait(1.5)
+
+        # ---- END OF LIGHT AS PARTICLES VS WAVES SECTION ----
+        light_scene = VGroup(
+            lamp_left, lamp_left_head, lamp_right, lamp_right_head,
+            label_left, label_right,
+            beam_left, beam_right,
+            left_barrier, right_barrier,
+            left_barrier_label, right_barrier_label,
+            particle_dots, wave_group
+        )
+
+        self.play(FadeOut(light_scene), run_time=1.2)
+        self.wait(0.5)
+
+
+
+
+
 
         # Metal block (like your image)
         metal = Rectangle(
@@ -225,6 +501,8 @@ class EHFAnimation(Scene):
         conclusion = Text("Photon Energy ∝ Frequency", font_size=48, color=BLUE)
         end = Text("Higher Frequency → Higher Photon Energy", font_size=36)
         
+        end.next_to(conclusion, DOWN, buff=0.3)  # adjust buff for spacing
+
         self.play(Write(conclusion))
         
         self.play(Write(end))
@@ -242,125 +520,13 @@ class EHFAnimation(Scene):
 # Two lamps on left and right
 
 # Left lamp
-        lamp_left = RoundedRectangle(
-            corner_radius=0.2,
-            width=0.8,
-            height=1.2,
-            color=PINK,
-            fill_opacity=1,
-        )
-        lamp_left.to_edge(UP).shift(LEFT*3)
-
-        lamp_left_head = Circle(
-            radius=0.35,
-            color=YELLOW,
-            fill_opacity=1,
-        ).next_to(lamp_left, DOWN, buff=-0.1)
-
-        # Right lamp (copy and shift to the other side)
-        lamp_right = lamp_left.copy().shift(RIGHT*6)
-        lamp_right_head = lamp_left_head.copy().shift(RIGHT*6)
-
-        # Optional labels
-        label_left = Text("LIGHT SOURCE", font_size=22).next_to(lamp_left, RIGHT, buff=0.2)
-        label_right = label_left.copy().shift(RIGHT*6)
-
-        # Show both lamps
-        self.play(
-            FadeIn(lamp_left), FadeIn(lamp_left_head),
-            FadeIn(lamp_right), FadeIn(lamp_right_head),
-            Write(label_left), Write(label_right),
-            run_time=1
-        )
 
 
-        # Frustum-shaped light beams from both lamps
-# Left beam (frustum)
-        left_top = lamp_left_head.get_center() + DOWN*0.1
-        left_bottom_y = left_top[1] - 4  # beam length
+        # Final thank-you message
+        thanks = Text("Thank you for watching :)", font_size=40, color=YELLOW)
+        thanks.to_edge(DOWN)  # or .move_to(ORIGIN) if you prefer centered
 
-        top_left_left  = left_top + LEFT*0.4
-        top_right_left = left_top + RIGHT*0.4
-        bottom_left_left  = left_top + LEFT*1.5 + (left_bottom_y - left_top[1]) * UP * 0 + DOWN*4
-        bottom_right_left = left_top + RIGHT*1.5 + (left_bottom_y - left_top[1]) * UP * 0 + DOWN*4
-
-        beam_left = Polygon(
-            top_left_left,
-            top_right_left,
-            bottom_right_left,
-            bottom_left_left,
-            color=YELLOW,
-            fill_opacity=0.15,
-            stroke_width=0,
-        )
-
-        # Right beam (mirror of left)
-        right_top = lamp_right_head.get_center() + DOWN*0.1
-        right_bottom_y = right_top[1] - 4
-
-        top_left_right  = right_top + LEFT*0.4
-        top_right_right = right_top + RIGHT*0.4
-        bottom_left_right  = right_top + LEFT*1.5 + DOWN*4
-        bottom_right_right = right_top + RIGHT*1.5 + DOWN*4
-
-        beam_right = Polygon(
-            top_left_right,
-            top_right_right,
-            bottom_right_right,
-            bottom_left_right,
-            color=YELLOW,
-            fill_opacity=0.15,
-            stroke_width=0,
-        )
-
-        self.play(FadeIn(beam_left), FadeIn(beam_right), run_time=1)
-
-
-        # Dimensions for barriers: cover right half of each frustum
-        barrier_height = 1.3   # adjust to taste
-        barrier_width_factor = 0.5  # half of beam width
-
-        # LEFT barrier (on right half of left frustum)
-        left_beam_bottom = beam_left.get_vertices()[2:]  # bottom edge approx
-        left_bottom_y = min(v[1] for v in left_beam_bottom)
-        left_top_y = beam_left.get_top()[1]
-
-        left_center_x = (beam_left.get_right()[0] + beam_left.get_center()[0]) / 2
-        left_barrier = Rectangle(
-            width=(beam_left.get_right()[0] - beam_left.get_center()[0]) * 2 * barrier_width_factor,
-            height=barrier_height,
-            color=GREEN,
-            fill_opacity=0.9,
-        ).move_to([
-            left_center_x,
-            left_top_y - barrier_height/2 - 3,   # sits inside upper half of frustum
-            0
-        ])
-
-        left_barrier_label = Text("BARRIER", font_size=24, color=WHITE).move_to(left_barrier.get_center())
-
-        # RIGHT barrier (mirror on right frustum)
-        right_beam_bottom = beam_right.get_vertices()[2:]
-        right_bottom_y = min(v[1] for v in right_beam_bottom)
-        right_top_y = beam_right.get_top()[1]
-
-        right_center_x = (beam_right.get_right()[0] + beam_right.get_center()[0]) / 2
-        right_barrier = Rectangle(
-            width=(beam_right.get_right()[0] - beam_right.get_center()[0]) * 2 * barrier_width_factor,
-            height=barrier_height,
-            color=GREEN,
-            fill_opacity=0.9,
-        ).move_to([
-            right_center_x,
-            right_top_y - barrier_height/2 - 3,
-            0
-        ])
-
-        right_barrier_label = Text("BARRIER", font_size=24, color=WHITE).move_to(right_barrier.get_center())
-
-        # Show barriers on top of beams
-        self.play(
-            FadeIn(left_barrier), FadeIn(right_barrier),
-            Write(left_barrier_label), Write(right_barrier_label),
-            run_time=1
-        )
+        self.play(Write(thanks), run_time=1.5)
+        self.wait(2)
+        self.play(FadeOut(thanks), run_time=1)
+        
