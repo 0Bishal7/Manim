@@ -595,3 +595,6 @@ class DataWrongScene(Scene):
             new_A.animate.scale(1.05).set_stroke(YELLOW, width=20),
             run_time=9.0  # Continuous "glow" effect without drift
         )
+
+
+     
